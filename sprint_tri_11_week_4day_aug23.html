@@ -1,0 +1,346 @@
+
+<style>
+  .plan-root { padding: 1rem 0; font-family: var(--font-sans); }
+  .week-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .week-tab { padding: 6px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; font-size: 13px; cursor: pointer; color: var(--color-text-secondary); transition: all 0.15s; }
+  .week-tab.active { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; font-weight: 500; }
+  .week-tab:hover:not(.active) { background: var(--color-background-secondary); }
+  .week-header { margin-bottom: 1.25rem; }
+  .week-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .week-subtitle { font-size: 13px; color: var(--color-text-secondary); margin: 0; }
+  .week-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .meta-badge { font-size: 12px; padding: 3px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); background: var(--color-background-secondary); display: inline-flex; align-items: center; gap: 4px; }
+  .days-grid { display: flex; flex-direction: column; gap: 8px; }
+  .day-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 16px; display: flex; gap: 14px; align-items: flex-start; }
+  .day-card.race-day { border: 2px solid var(--color-border-info); }
+  .day-card.rest-day { opacity: 0.55; }
+  .day-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); min-width: 66px; padding-top: 1px; }
+  .day-content { flex: 1; }
+  .day-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .day-desc { font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.5; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-right: 5px; margin-bottom: 3px; font-weight: 500; }
+  .pill-swim { background: #E6F1FB; color: #0C447C; }
+  .pill-bike { background: #EAF3DE; color: #27500A; }
+  .pill-run { background: #FAEEDA; color: #633806; }
+  .pill-rest { background: #F1EFE8; color: #444441; }
+  .pill-brick { background: #FBEAF0; color: #72243E; }
+  .pill-race { background: #EEEDFE; color: #3C3489; }
+  .tips-section { margin-top: 1.5rem; padding: 14px 16px; background: var(--color-background-secondary); border-radius: var(--border-radius-lg); }
+  .tips-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 8px; display: flex; align-items: center; gap: 6px; }
+  .tips-list { margin: 0; padding-left: 16px; }
+  .tips-list li { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .phase-bar { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+  .phase-block { flex: 1; padding: 8px 10px; border-radius: var(--border-radius-md); text-align: center; font-size: 11px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+  .phase-block:hover { opacity: 0.8; }
+  .phase-1 { background: #E6F1FB; color: #0C447C; border: 0.5px solid #B5D4F4; }
+  .phase-2 { background: #EAF3DE; color: #27500A; border: 0.5px solid #C0DD97; }
+  .phase-3 { background: #FAEEDA; color: #633806; border: 0.5px solid #FAC775; }
+  .phase-4 { background: #EEEDFE; color: #3C3489; border: 0.5px solid #CECBF6; }
+  .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .progress-label { font-size: 11px; color: var(--color-text-secondary); min-width: 38px; }
+  .progress-bar-bg { flex: 1; height: 5px; background: var(--color-background-secondary); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 999px; }
+  .progress-swim { background: #378ADD; }
+  .progress-bike { background: #639922; }
+  .progress-run { background: #BA7517; }
+  .date-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .summary-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+  .summary-val { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+  .summary-lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .note-box { background: var(--color-background-warning); border: 0.5px solid var(--color-border-warning); border-radius: var(--border-radius-md); padding: 10px 14px; margin-bottom: 1.25rem; font-size: 13px; color: var(--color-text-warning); line-height: 1.5; }
+</style>
+
+<div class="plan-root">
+  <h2 class="sr-only">11-week sprint triathlon training plan, 4 days per week, race August 23rd</h2>
+
+  <div class="summary-grid">
+    <div class="summary-card"><div class="summary-val">11</div><div class="summary-lbl">weeks to race</div></div>
+    <div class="summary-card"><div class="summary-val">Jun 3</div><div class="summary-lbl">start date</div></div>
+    <div class="summary-card"><div class="summary-val">Aug 23</div><div class="summary-lbl">race day (Sat)</div></div>
+    <div class="summary-card"><div class="summary-val">4 days</div><div class="summary-lbl">per week</div></div>
+  </div>
+
+  <div class="phase-bar">
+    <div class="phase-block phase-1" onclick="jumpToPhase(1)">Phase 1<br>Wks 1–4<br>Base</div>
+    <div class="phase-block phase-2" onclick="jumpToPhase(2)">Phase 2<br>Wks 5–8<br>Build</div>
+    <div class="phase-block phase-3" onclick="jumpToPhase(3)">Phase 3<br>Wks 9–10<br>Peak</div>
+    <div class="phase-block phase-4" onclick="jumpToPhase(4)">Phase 4<br>Wk 11<br>Taper</div>
+  </div>
+
+  <div class="week-tabs" id="weekTabs"></div>
+  <div id="weekContent"></div>
+</div>
+
+<script>
+const weeks = [
+  {
+    num: 1, phase: 1,
+    dateRange: "Jun 3 – Jun 8",
+    title: "Week 1 — First steps",
+    subtitle: "Build the habit across all three disciplines. Easy pace throughout — if you can't talk, slow down.",
+    totalTime: "~2.5 hrs", focus: "Habit formation",
+    swimM: 200, bikeMin: 20, runMin: 20,
+    note: "With 4 days, each session carries more weight. Rest days are part of the plan — protect them.",
+    days: [
+      { label: "Wed Jun 3", type: "swim", name: "Swim — introduction", desc: "4×50m with 45s rest. Focus on breathing rhythm only. Total ~200m.", pills: ["swim"] },
+      { label: "Thu Jun 4", type: "run", name: "Run/walk intervals", desc: "20 min: 2 min jog, 2 min walk. Slow enough to hold a full conversation throughout.", pills: ["run"] },
+      { label: "Fri Jun 5", type: "rest", name: "Rest", desc: "Full rest. Three sessions done, three days to go.", pills: ["rest"], isRest: true },
+      { label: "Sat Jun 6", type: "bike", name: "Spin bike — easy pedaling", desc: "20 min at low resistance, 80–90 RPM. Just get comfortable in the saddle.", pills: ["bike"] },
+      { label: "Sun Jun 7", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Mon Jun 8", type: "swim", name: "Swim — drills", desc: "4×50m with one drill per lap: catch-up, side kick, or finger drag. Total ~200m.", pills: ["swim"] },
+      { label: "Tue Jun 9", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["4 days means each session is more purposeful — don't skip or shorten without reason", "Never skip a warm-up: 5 min of easy movement prevents injury when starting from low fitness", "For cycling, any gym stationary bike works fine until you source a road bike"]
+  },
+  {
+    num: 2, phase: 1,
+    dateRange: "Jun 10 – Jun 15",
+    title: "Week 2 — Extending durations",
+    subtitle: "Slightly longer efforts across the board. First 100m continuous swim.",
+    totalTime: "~3 hrs", focus: "Aerobic base",
+    swimM: 300, bikeMin: 25, runMin: 25,
+    days: [
+      { label: "Wed Jun 10", type: "swim", name: "Swim — first 100m", desc: "2×100m with 60s rest. Break into 50m sets if needed. Total ~200–250m.", pills: ["swim"] },
+      { label: "Thu Jun 11", type: "run", name: "Run — more running", desc: "25 min: 3 min jog, 90s walk. Aim to reduce walk breaks vs last week.", pills: ["run"] },
+      { label: "Fri Jun 12", type: "rest", name: "Rest", desc: "Full rest or gentle mobility — hip flexors, calves, shoulders.", pills: ["rest"], isRest: true },
+      { label: "Sat Jun 13", type: "bike", name: "Spin — 25 min", desc: "5 min more than last week. Slightly increase resistance in the middle 10 min.", pills: ["bike"] },
+      { label: "Sun Jun 14", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Mon Jun 15", type: "swim", name: "Swim — 3×100m", desc: "3×100m with 60s rest. Consistent effort across all three. Total ~300m.", pills: ["swim"] },
+      { label: "Tue Jun 16", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["You're only getting 4 sessions, so make each one count — show up even when motivation is low", "In the pool, swim near the lane ropes. Your race is 30 laps in a 25m pool — track by laps", "Running: note how many walk breaks you needed. You'll use this to measure progress"]
+  },
+  {
+    num: 3, phase: 1,
+    dateRange: "Jun 17 – Jun 22",
+    title: "Week 3 — First brick",
+    subtitle: "400m swim, 30 min run approaching continuous. Saturday is your first brick session.",
+    totalTime: "~3.5 hrs", focus: "Multi-sport feel",
+    swimM: 400, bikeMin: 35, runMin: 28,
+    days: [
+      { label: "Wed Jun 17", type: "swim", name: "Swim — 400m milestone", desc: "4×100m with 45s rest. First real swim milestone. Rest at the wall when you need to.", pills: ["swim"] },
+      { label: "Thu Jun 18", type: "run", name: "Run — fewer walk breaks", desc: "28 min: aim for 5 min jog, 1 min walk. Push slightly past comfort.", pills: ["run"] },
+      { label: "Fri Jun 19", type: "rest", name: "Rest", desc: "Full rest. Saturday's brick is the key session of this week.", pills: ["rest"], isRest: true },
+      { label: "Sat Jun 20", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Sun Jun 21", type: "swim", name: "Swim — 500m technique", desc: "2×200m + 2×50m pickups. Notice when your stroke breaks down under fatigue.", pills: ["swim"] },
+      { label: "Mon Jun 22", type: "brick", name: "First brick — bike → run", desc: "20 min bike + 10 min run immediately after. Legs will feel wobbly — that's exactly what you're training for.", pills: ["bike", "run", "brick"] },
+      { label: "Tue Jun 23", type: "rest", name: "Rest", desc: "Full rest. Note how the brick felt — the jelly-leg feeling shortens each week.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["The brick is the most important session in this plan — never skip Saturday", "Note how long after dismounting it takes your legs to feel normal. It'll shorten week by week", "With 4 days, your Saturday brick replaces what would have been a separate bike day"]
+  },
+  {
+    num: 4, phase: 1,
+    dateRange: "Jun 24 – Jun 29",
+    title: "Week 4 — Closing out base",
+    subtitle: "500m swim, first full 30 min continuous run, first tempo effort. Base phase complete.",
+    totalTime: "~4 hrs", focus: "Base completion",
+    swimM: 500, bikeMin: 40, runMin: 30,
+    days: [
+      { label: "Wed Jun 24", type: "swim", name: "Swim — 500m", desc: "5×100m with 30s rest. Keep consistent pace across all sets — don't go out too fast.", pills: ["swim"] },
+      { label: "Thu Jun 25", type: "run", name: "Run — 30 min continuous", desc: "Try your first fully continuous 30 min run. Walk only if truly necessary.", pills: ["run"] },
+      { label: "Fri Jun 26", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Sat Jun 27", type: "run", name: "First tempo run", desc: "25 min: 5 min warm-up, 3×4 min comfortably hard effort, 3 min jog recovery between, 5 min cool-down.", pills: ["run"] },
+      { label: "Sun Jun 28", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Mon Jun 29", type: "brick", name: "Brick — longer bike", desc: "35 min bike + 12 min run. Practice T2: rack bike, switch shoes, start running smoothly.", pills: ["bike", "run", "brick"] },
+      { label: "Tue Jun 30", type: "rest", name: "Rest", desc: "Full rest. Phase 1 complete — real aerobic base is built.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["Tempo effort = 7/10. You can speak a few words but not hold a conversation", "Notice the plan has two run sessions this week — running is often the hardest discipline for new triathletes to build", "Start sourcing a road or hybrid bike: you need outdoor miles from week 7 onward"]
+  },
+  {
+    num: 5, phase: 2,
+    dateRange: "Jul 1 – Jul 6",
+    title: "Week 5 — Build phase begins",
+    subtitle: "Distances step up. Swim 600m, bike sessions grow, run gets a tempo component.",
+    totalTime: "~4.5 hrs", focus: "Volume increase",
+    swimM: 600, bikeMin: 45, runMin: 35,
+    days: [
+      { label: "Wed Jul 1", type: "swim", name: "Swim — 600m", desc: "6×100m with 30s rest. Consistent pace — don't sprint the first two then die.", pills: ["swim"] },
+      { label: "Thu Jul 2", type: "run", name: "Run — 35 min", desc: "Aim for continuous running. No more than 1–2 min walking total if needed.", pills: ["run"] },
+      { label: "Fri Jul 3", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Sat Jul 4", type: "run", name: "Tempo intervals", desc: "30 min: warm-up, 4×3 min hard, 2 min jog recovery between, cool-down.", pills: ["run"] },
+      { label: "Sun Jul 5", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Mon Jul 6", type: "brick", name: "Brick — 40 min bike + 15 min run", desc: "Practice T2. Note how much faster your legs settle into running now vs week 3.", pills: ["bike", "run", "brick"] },
+      { label: "Tue Jul 7", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["With 4 days, the swim is now your standalone session — protect Monday swim as a non-negotiable", "Hydration on the bike: practice drinking from a bottle while pedaling at home before Saturday", "Map your 5.5k race run route and try to run it at least once this phase"]
+  },
+  {
+    num: 6, phase: 2,
+    dateRange: "Jul 8 – Jul 13",
+    title: "Week 6 — Race distance swim",
+    subtitle: "First time swimming your full 750m race distance. A real milestone.",
+    totalTime: "~5 hrs", focus: "Specificity",
+    swimM: 750, bikeMin: 50, runMin: 40,
+    days: [
+      { label: "Wed Jul 8", type: "swim", name: "Swim — 750m attempt", desc: "Try 750m with minimal rest stops. Take breaks at the wall when needed. Record your time — this is your baseline.", pills: ["swim"] },
+      { label: "Thu Jul 9", type: "run", name: "Easy run — 30 min", desc: "Recovery pace only. Yesterday was a big swim — don't push the run today.", pills: ["run"] },
+      { label: "Fri Jul 10", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Sat Jul 11", type: "run", name: "Tempo run — 35 min", desc: "10 min easy, 15 min at tempo effort, 10 min easy. Controlled discomfort.", pills: ["run"] },
+      { label: "Sun Jul 12", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Mon Jul 13", type: "brick", name: "Brick — 50 min bike + 20 min run", desc: "Ideally outdoors on a real bike. Full transitions. Practice hydration on the bike.", pills: ["bike", "run", "brick"] },
+      { label: "Tue Jul 14", type: "rest", name: "Rest", desc: "Full rest. 6 weeks to race day.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["If 750m felt rough, that's fine — you have 6 more weeks. Break it into 250+250+250 with 90s rests if needed", "You now have 6 weeks to race day — the pressure is manageable", "Bike sourcing: if you haven't gotten on a real bike yet, this is the latest comfortable window to start"]
+  },
+  {
+    num: 7, phase: 2,
+    dateRange: "Jul 15 – Jul 20",
+    title: "Week 7 — Building confidence",
+    subtitle: "Swim 750m more comfortably. Bike grows toward race length. Run feels easier.",
+    totalTime: "~5 hrs", focus: "Consolidation",
+    swimM: 750, bikeMin: 55, runMin: 40,
+    days: [
+      { label: "Wed Jul 15", type: "swim", name: "Swim — 750m smoother", desc: "750m aiming for fewer rest stops than week 6. Note your improvement in time and effort.", pills: ["swim"] },
+      { label: "Thu Jul 16", type: "run", name: "Run — 40 min steady", desc: "Easy–moderate effort. Focus on form and economy rather than pace.", pills: ["run"] },
+      { label: "Fri Jul 17", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Sat Jul 18", type: "run", name: "Tempo run — 35 min", desc: "10 min easy, 15 min at tempo, 10 min easy. You should be handling this better than week 4.", pills: ["run"] },
+      { label: "Sun Jul 19", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Mon Jul 20", type: "brick", name: "Brick — 55 min bike + 22 min run", desc: "Longest brick yet. Full gear. Practice your exact transition routine every time.", pills: ["bike", "run", "brick"] },
+      { label: "Tue Jul 21", type: "rest", name: "Rest", desc: "Full rest. 5 weeks to race day.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["Jelly-legs transition time should be noticeably shorter than it was in week 3", "Run your actual 5.5k race route this week or next to get familiar with the terrain", "Think about race-day breakfast — rehearse it now so your gut is trained to it by Aug 23"]
+  },
+  {
+    num: 8, phase: 2,
+    dateRange: "Jul 22 – Jul 27",
+    title: "Week 8 — Peak volume",
+    subtitle: "Hardest week of the plan. Approach full race distances. Saturday is the big day.",
+    totalTime: "~5.5 hrs", focus: "Peak load",
+    swimM: 800, bikeMin: 65, runMin: 45,
+    days: [
+      { label: "Wed Jul 22", type: "swim", name: "Swim — 800m overreach", desc: "8×100m at race pace with 20s rest. Just beyond race distance to build confidence.", pills: ["swim"] },
+      { label: "Thu Jul 23", type: "run", name: "Interval run — 35 min", desc: "Warm-up, 4×4 min hard effort, 2 min jog recovery between, cool-down. Your hardest run of the plan.", pills: ["run"] },
+      { label: "Fri Jul 24", type: "rest", name: "Rest", desc: "Full rest. The next two days matter — protect this rest.", pills: ["rest"], isRest: true },
+      { label: "Sat Jul 25", type: "rest", name: "Rest", desc: "Full rest. Saturday is a big day.", pills: ["rest"], isRest: true },
+      { label: "Sun Jul 26", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Mon Jul 27", type: "brick", name: "Race simulation brick — the big one", desc: "65–70 min bike (approx 17–18km outdoors) + 25 min run. Full transitions, race kit if you have it. This is your dress rehearsal.", pills: ["bike", "run", "brick"] },
+      { label: "Tue Jul 28", type: "rest", name: "Full rest — mandatory", desc: "Rest completely. Good nutrition and long sleep. You've done the hardest work.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["Week 8 is the hardest week — if you get through Saturday's brick, you will finish the race", "Eat a carb-rich meal Friday night before the big brick session", "Start finalizing race logistics: bib pickup, transition area rules, parking, bag drop"]
+  },
+  {
+    num: 9, phase: 3,
+    dateRange: "Jul 29 – Aug 3",
+    title: "Week 9 — Peak sharpening",
+    subtitle: "Volume drops ~25%. Intensity stays. You're consolidating fitness, not building it.",
+    totalTime: "~4 hrs", focus: "Sharpening",
+    swimM: 750, bikeMin: 50, runMin: 35,
+    days: [
+      { label: "Wed Jul 29", type: "swim", name: "Swim — 750m sharp", desc: "6×125m at race pace with 25s rest. Should feel noticeably easier than week 6's first attempt.", pills: ["swim"] },
+      { label: "Thu Jul 30", type: "run", name: "Run — 35 min moderate", desc: "Easy–moderate effort only. No hard intervals. Just move fluidly.", pills: ["run"] },
+      { label: "Fri Jul 31", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Sat Aug 1", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Sun Aug 2", type: "run", name: "Run — 30 min with strides", desc: "25 min easy then 4×20-second strides (fast but relaxed, full recovery between). Keeps legs sharp without fatiguing them.", pills: ["run"] },
+      { label: "Mon Aug 3", type: "brick", name: "Brick — 50 min bike + 20 min run", desc: "Race effort on the bike, race pace on the run. Everything should feel manageable now.", pills: ["bike", "run", "brick"] },
+      { label: "Tue Aug 4", type: "rest", name: "Rest", desc: "Rest and visualize race day from swim start to finish line.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["Taper anxiety is real — the urge to cram more training is counterproductive. Trust the plan", "If you feel sluggish this week, that's normal — your body is consolidating all the work", "Confirm race-day kit is complete: wetsuit (if needed), goggles, helmet, race bib, nutrition"]
+  },
+  {
+    num: 10, phase: 3,
+    dateRange: "Aug 5 – Aug 10",
+    title: "Week 10 — Taper deepens",
+    subtitle: "Volume drops another 25–30%. Short, sharp efforts. Arrive at race week fully rested.",
+    totalTime: "~3 hrs", focus: "Taper",
+    swimM: 600, bikeMin: 35, runMin: 25,
+    days: [
+      { label: "Wed Aug 5", type: "swim", name: "Swim — 600m crisp", desc: "6×100m at race pace. Should feel easy and fluid. That's the point.", pills: ["swim"] },
+      { label: "Thu Aug 6", type: "run", name: "Run — 25 min easy", desc: "Easy pace throughout. The hard work is done. Enjoy it.", pills: ["run"] },
+      { label: "Fri Aug 7", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Sat Aug 8", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Sun Aug 9", type: "rest", name: "Rest", desc: "Full rest.", pills: ["rest"], isRest: true },
+      { label: "Mon Aug 10", type: "brick", name: "Short brick — confidence session", desc: "25 min bike + 12 min run at race pace. This should feel comfortable. If it does, you're ready.", pills: ["bike", "run", "brick"] },
+      { label: "Tue Aug 11", type: "rest", name: "Rest", desc: "Two weeks to race day. Trust your training.", pills: ["rest"], isRest: true }
+    ],
+    tips: ["Lay out all race-day gear and check everything: tires pumped, helmet strap, goggles not fogged", "Eat exactly what you plan to eat race morning — no new foods ever on race day", "Hydrate consistently all week. Don't try to 'water load' the night before"]
+  },
+  {
+    num: 11, phase: 4,
+    dateRange: "Aug 12 – Aug 23",
+    title: "Week 11 — Race week",
+    subtitle: "Minimal movement. Stay loose. Arrive at the start line rested and sharp.",
+    totalTime: "~1 hr + race",
+    focus: "Race execution",
+    swimM: 300, bikeMin: 15, runMin: 15,
+    days: [
+      { label: "Wed Aug 12", type: "swim", name: "Easy shakeout swim", desc: "300m very easy. Just to maintain your feel for the water. Nothing more.", pills: ["swim"] },
+      { label: "Thu Aug 13", type: "run", name: "Easy jog — 15 min", desc: "Very easy. Don't push. Just move your legs and shake out any stiffness.", pills: ["run"] },
+      { label: "Fri Aug 14", type: "bike", name: "Easy spin — 15 min", desc: "Check bike is race-ready: tires pumped, gears smooth, brakes tight.", pills: ["bike"] },
+      { label: "Sat Aug 15", type: "rest", name: "Rest", desc: "Full rest. Sleep early.", pills: ["rest"], isRest: true },
+      { label: "Sun Aug 16 – Sat Aug 22", type: "rest", name: "Rest + final logistics", desc: "Sleep well every night. Confirm bib pickup time, transition area layout, and parking. Visualize each leg of the race calmly.", pills: ["rest"], isRest: true },
+      { label: "Sun Aug 23", type: "brick", name: "Race day!", desc: "750m swim → 17.5km bike → 5.5km run. Start the swim conservatively. Settle into your bike pace early. Run with whatever you have left. You are ready.", pills: ["swim", "bike", "run", "race"], isRaceDay: true }
+    ],
+    tips: ["Race morning: eat 2–2.5 hrs before start. Something you've practiced — nothing new", "Swim start: seed yourself toward the outside/back to avoid contact. Ease into the first 100m", "T1 (swim→bike): goggles off, helmet on BEFORE touching the bike — marshals enforce this", "T2 (bike→run): rack bike first, helmet off, then run shoes. Go easy the first 5 min — legs will settle", "Finish line: take it all in. 11 weeks ago you started from near zero."]
+  }
+];
+
+const pillMap = { swim: "pill-swim", bike: "pill-bike", run: "pill-run", rest: "pill-rest", brick: "pill-brick", race: "pill-race" };
+const pillLabel = { swim: "Swim", bike: "Bike", run: "Run", rest: "Rest", brick: "Brick", race: "Race" };
+
+let currentWeek = 1;
+
+function renderTabs() {
+  const container = document.getElementById("weekTabs");
+  container.innerHTML = weeks.map(w =>
+    `<button class="week-tab ${w.num === currentWeek ? 'active' : ''}" onclick="setWeek(${w.num})">Wk ${w.num}<br><span style="font-size:10px;opacity:0.7;">${w.dateRange.split('–')[0].trim()}</span></button>`
+  ).join("");
+}
+
+function renderWeek(w) {
+  const maxSwim = 800, maxBike = 65, maxRun = 45;
+  const content = document.getElementById("weekContent");
+  content.innerHTML = `
+    <div class="week-header">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+        <p class="week-title" style="margin:0;">${w.title}</p>
+        <span class="date-chip">${w.dateRange}</span>
+      </div>
+      <p class="week-subtitle">${w.subtitle}</p>
+    </div>
+    <div class="week-meta">
+      <span class="meta-badge"><i class="ti ti-clock" aria-hidden="true"></i> ${w.totalTime}</span>
+      <span class="meta-badge"><i class="ti ti-target" aria-hidden="true"></i> ${w.focus}</span>
+      <span class="meta-badge">Phase ${w.phase}</span>
+    </div>
+    <div style="margin-bottom:1.25rem;">
+      <div class="progress-row"><span class="progress-label">Swim</span><div class="progress-bar-bg"><div class="progress-fill progress-swim" style="width:${Math.round((w.swimM/maxSwim)*100)}%"></div></div><span style="font-size:11px;color:var(--color-text-secondary);min-width:44px;text-align:right;">${w.swimM}m</span></div>
+      <div class="progress-row"><span class="progress-label">Bike</span><div class="progress-bar-bg"><div class="progress-fill progress-bike" style="width:${Math.round((w.bikeMin/maxBike)*100)}%"></div></div><span style="font-size:11px;color:var(--color-text-secondary);min-width:44px;text-align:right;">${w.bikeMin} min</span></div>
+      <div class="progress-row"><span class="progress-label">Run</span><div class="progress-bar-bg"><div class="progress-fill progress-run" style="width:${Math.round((w.runMin/maxRun)*100)}%"></div></div><span style="font-size:11px;color:var(--color-text-secondary);min-width:44px;text-align:right;">${w.runMin} min</span></div>
+    </div>
+    <div class="days-grid">
+      ${w.days.map(d => `
+        <div class="day-card${d.isRaceDay ? ' race-day' : d.isRest ? ' rest-day' : ''}">
+          <span class="day-label">${d.label}</span>
+          <div class="day-content">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+              <span class="day-name">${d.name}</span>
+              <span>${d.pills.map(p => `<span class="pill ${pillMap[p]}">${pillLabel[p]}</span>`).join("")}</span>
+            </div>
+            <p class="day-desc">${d.desc}</p>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+    <div class="tips-section">
+      <p class="tips-title"><i class="ti ti-bulb" aria-hidden="true"></i> Tips for this week</p>
+      <ul class="tips-list">
+        ${w.tips.map(t => `<li>${t}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+}
+
+function setWeek(num) {
+  currentWeek = num;
+  renderTabs();
+  renderWeek(weeks[num - 1]);
+}
+
+function jumpToPhase(phase) {
+  const firstWeek = weeks.find(w => w.phase === phase);
+  if (firstWeek) setWeek(firstWeek.num);
+}
+
+setWeek(1);
+</script>
